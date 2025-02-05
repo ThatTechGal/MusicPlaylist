@@ -10,6 +10,7 @@ pygame.mixer.init()
 
 # Global variable to track if song is playing
 is_playing = False
+current_song_index = 0  # To track the current song in the playlist
 
 # Function to add songs to the playlist
 def add_songs():
@@ -19,9 +20,9 @@ def add_songs():
 
 # Function to load and play the selected song from the playlist
 def play_song():
-    global is_playing
+    global is_playing, current_song_index
     is_playing = True
-    song_path = playlist.get(ACTIVE)  # Get the selected song from the listbox
+    song_path = playlist.get(current_song_index)  # Get the song from the listbox using current_song_index
     try:
         pygame.mixer.music.load(song_path)
         pygame.mixer.music.play()
@@ -54,6 +55,7 @@ def update_progress_bar():
         time.sleep(1)
     progress_bar['value'] = 0  # Reset progress bar if song stops
     time_label.config(text="")
+    play_next_song()  # Play the next song when the current one finishes
 
 # Function to pause the song
 def pause_song():
@@ -77,10 +79,24 @@ def stop_song():
     progress_bar['value'] = 0  # Reset progress bar
     time_label.config(text="")
 
+# Function to play the next song in the playlist
+def play_next_song():
+    global current_song_index
+    if current_song_index + 1 < playlist.size():
+        current_song_index += 1
+        play_song()
+
+# Function to play the previous song in the playlist
+def play_previous_song():
+    global current_song_index
+    if current_song_index - 1 >= 0:
+        current_song_index -= 1
+        play_song()
+
 # Create the Tkinter window
 root = Tk()
 root.title("Music Player with Playlist and Progress Bar")
-root.geometry("500x450")
+root.geometry("550x550")
 
 # Song Label
 song_label = Label(root, text="No song playing", font=("Helvetica", 12))
@@ -114,9 +130,16 @@ resume_button.grid(row=0, column=2, padx=5)
 stop_button = Button(controls_frame, text="Stop", width=10, command=stop_song)
 stop_button.grid(row=0, column=3, padx=5)
 
+next_button = Button(controls_frame, text="Next", width=10, command=play_next_song)  # Next button
+next_button.grid(row=0, column=4, padx=5)
+
+prev_button = Button(controls_frame, text="Previous", width=10, command=play_previous_song)  # Previous button
+prev_button.grid(row=0, column=5, padx=5)
+
 # Add Songs Button
 add_button = Button(root, text="Add Songs", command=add_songs)
 add_button.pack(pady=10)
 
 # Run the Tkinter main loop
 root.mainloop()
+
